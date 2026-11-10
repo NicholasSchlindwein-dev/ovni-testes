@@ -1,0 +1,62 @@
+[
+  {
+    "id": "nome_vazio",
+    "dados": {"nome": "", "idade": "30", "sangue": "O+", "data": "FUTURA", "termo": true},
+    "campo": "nome",
+    "mensagem": "Informe o nome do espécime (mínimo 3 caracteres)."
+  },
+  {
+    "id": "nome_curto_2_caracteres",
+    "dados": {"nome": "Zé", "idade": "30", "sangue": "O+", "data": "FUTURA", "termo": true},
+    "campo": "nome",
+    "mensagem": "Informe o nome do espécime (mínimo 3 caracteres)."
+  },
+  {
+    "id": "idade_17_abaixo_do_limite",
+    "dados": {"nome": "Fox Mulder", "idade": "17", "sangue": "O+", "data": "FUTURA", "termo": true},
+    "campo": "idade",
+    "mensagem": "Idade deve estar entre 18 e 120 anos terrestres."
+  },
+  {
+    "id": "idade_121_acima_do_limite",
+    "dados": {"nome": "Fox Mulder", "idade": "121", "sangue": "O+", "data": "FUTURA", "termo": true},
+    "campo": "idade",
+    "mensagem": "Idade deve estar entre 18 e 120 anos terrestres."
+  },
+  {
+    "id": "idade_nao_numerica",
+    "dados": {"nome": "Fox Mulder", "idade": "trinta", "sangue": "O+", "data": "FUTURA", "termo": true},
+    "campo": "idade",
+    "mensagem": "Idade deve estar entre 18 e 120 anos terrestres."
+  },
+  {
+    "id": "tipo_sanguineo_nao_selecionado",
+    "dados": {"nome": "Fox Mulder", "idade": "30", "sangue": "", "data": "FUTURA", "termo": true},
+    "campo": "sangue",
+    "mensagem": "Selecione o tipo sanguíneo."
+  },
+  {
+    "id": "data_no_passado",
+    "dados": {"nome": "Fox Mulder", "idade": "30", "sangue": "O+", "data": "01/01/2020", "termo": true},
+    "campo": "data",
+    "mensagem": "A data deve ser no futuro. Viagem no tempo é outro departamento."
+  },
+  {
+    "id": "data_inexistente_31_02",
+    "dados": {"nome": "Fox Mulder", "idade": "30", "sangue": "O+", "data": "31/02/2099", "termo": true},
+    "campo": "data",
+    "mensagem": "Data inválida. Use o formato DD/MM/AAAA."
+  },
+  {
+    "id": "data_formato_errado",
+    "dados": {"nome": "Fox Mulder", "idade": "30", "sangue": "O+", "data": "2099-05-10", "termo": true},
+    "campo": "data",
+    "mensagem": "Data inválida. Use o formato DD/MM/AAAA."
+  },
+  {
+    "id": "termo_nao_aceito",
+    "dados": {"nome": "Fox Mulder", "idade": "30", "sangue": "O+", "data": "FUTURA", "termo": false},
+    "campo": "termo",
+    "mensagem": "É obrigatório aceitar o termo de sondagem."
+  }
+]
