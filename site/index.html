@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>O.V.N.I. — Órgão de Viagens Não Identificadas</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="estrelas" aria-hidden="true"></div>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="topo">
+    <a class="marca" href="#/catalogo" data-testid="marca">
+      <svg class="disco" viewBox="0 0 120 80" aria-hidden="true">
+        <polygon class="raio" points="42,46 78,46 104,80 16,80"/>
+        <ellipse cx="60" cy="30" rx="22" ry="18" class="cupula"/>
+        <ellipse cx="60" cy="40" rx="52" ry="13" class="casco"/>
+        <circle cx="30" cy="41" r="3" class="luz l1"/>
+        <circle cx="60" cy="45" r="3" class="luz l2"/>
+        <circle cx="90" cy="41" r="3" class="luz l3"/>
+      </svg>
+      <span class="marca-texto">
+        <strong class="glitch" data-texto="O.V.N.I.">O.V.N.I.</strong>
+        <small>Órgão de Viagens Não Identificadas</small>
+      </span>
+    </a>
+    <nav id="nav" class="nav" data-testid="nav"></nav>
+  </header>
+
+  <div class="letreiro" aria-hidden="true">
+    <div class="letreiro-faixa">
+      <span>★ ABDUÇÕES COM 12x SEM JUROS ★ SATISFAÇÃO GARANTIDA OU SUA MEMÓRIA DE VOLTA ★ NÃO SOMOS RESPONSÁVEIS POR VACAS EXTRAVIADAS ★ A VERDADE ESTÁ NO CARRINHO ★ PROIBIDO FOTOGRAFAR COM FLASH ★&nbsp;</span>
+      <span>★ ABDUÇÕES COM 12x SEM JUROS ★ SATISFAÇÃO GARANTIDA OU SUA MEMÓRIA DE VOLTA ★ NÃO SOMOS RESPONSÁVEIS POR VACAS EXTRAVIADAS ★ A VERDADE ESTÁ NO CARRINHO ★ PROIBIDO FOTOGRAFAR COM FLASH ★&nbsp;</span>
+    </div>
+  </div>
+
+  <main id="app" class="app" data-testid="app"></main>
+
+  <div id="toast" class="toast" data-testid="toast" role="status" hidden></div>
+  <div id="camada" class="camada" hidden></div>
+
+  <footer class="rodape">
+    Transmissão não autorizada · Setor 7-G · Nenhum humano foi (permanentemente) ferido na construção deste site
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
