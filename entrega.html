@@ -1,0 +1,1208 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O.V.N.I. — Entrega dos testes</title>
+<style>
+:root {
+  --bg: #f6f5f1; --papel: #ffffff; --tinta: #1b1a22; --sec: #5b5a66; --linha: #e2e0d8;
+  --acento: #6b1fd1; --acento-suave: #efe7fb; --ok: #0f7a3d; --ok-bg: #e3f4ea;
+  --erro: #b3261e; --erro-bg: #fbe5e3; --neg: #a33a00; --neg-bg: #fdeede; --pos-bg: #e4f0fb; --pos: #1b4f8a;
+  --smoke-bg: #f3e8ff; --codigo: #f0eee8; --barra: #6b1fd1;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "Cascadia Mono", Consolas, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0b18; --papel: #16121f; --tinta: #ece9f3; --sec: #a6a1b5; --linha: #2c2638;
+    --acento: #b98cff; --acento-suave: #2a1f40; --ok: #5fd68f; --ok-bg: #12301f; --erro: #ff8a80; --erro-bg: #3a1614;
+    --neg: #ffb27a; --neg-bg: #3a2312; --pos: #8cc4ff; --pos-bg: #13263c; --smoke-bg: #2b1d45; --codigo: #221c2e; --barra: #b98cff;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0b18; --papel: #16121f; --tinta: #ece9f3; --sec: #a6a1b5; --linha: #2c2638;
+  --acento: #b98cff; --acento-suave: #2a1f40; --ok: #5fd68f; --ok-bg: #12301f; --erro: #ff8a80; --erro-bg: #3a1614;
+  --neg: #ffb27a; --neg-bg: #3a2312; --pos: #8cc4ff; --pos-bg: #13263c; --smoke-bg: #2b1d45; --codigo: #221c2e; --barra: #b98cff;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--tinta); font: 16px/1.6 var(--sans); }
+a { color: var(--acento); }
+code { font-family: var(--mono); font-size: .86em; background: var(--codigo); padding: .1em .35em; border-radius: 4px; word-break: break-word; }
+.layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); max-width: 1240px; margin: 0 auto; gap: 40px; padding: 0 24px; }
+nav.indice { position: sticky; top: 0; align-self: start; padding: 40px 0; font-size: 14px; max-height: 100vh; overflow: auto; }
+nav.indice b { display: block; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--sec); margin-bottom: 8px; }
+nav.indice a { display: block; color: var(--sec); text-decoration: none; padding: 4px 0 4px 10px; border-left: 2px solid var(--linha); }
+nav.indice a:hover { color: var(--tinta); border-color: var(--acento); }
+main { padding: 40px 0 80px; min-width: 0; }
+header.capa { border-bottom: 1px solid var(--linha); padding-bottom: 32px; margin-bottom: 8px; }
+.sobre { font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--acento); font-weight: 600; }
+h1 { font-family: var(--serif); font-size: clamp(32px, 5vw, 48px); line-height: 1.1; margin: 10px 0 12px; font-weight: 600; }
+.lead { font-size: 18px; color: var(--sec); max-width: 62ch; margin: 0; }
+.meta { margin-top: 20px; display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14px; color: var(--sec); }
+.meta strong { color: var(--tinta); font-weight: 600; }
+h2 { font-family: var(--serif); font-size: 28px; font-weight: 600; margin: 56px 0 12px; scroll-margin-top: 16px; }
+h2 .n { color: var(--acento); margin-right: 10px; }
+h3 { font-size: 18px; margin: 32px 0 12px; }
+h3 small { font-weight: 400; color: var(--sec); font-size: 13px; margin-left: 8px; }
+p { max-width: 72ch; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 24px 0; }
+.kpi { background: var(--papel); border: 1px solid var(--linha); border-radius: 10px; padding: 14px 16px; }
+.kpi .v { font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.kpi .r { font-size: 13px; color: var(--sec); }
+.kpi.ok .v { color: var(--ok); }
+.tabela { overflow-x: auto; border: 1px solid var(--linha); border-radius: 10px; background: var(--papel); margin: 16px 0; }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--linha); }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--sec); background: var(--bg); position: sticky; top: 0; }
+tbody tr:last-child td { border-bottom: 0; }
+table.cenarios td:first-child { font-variant-numeric: tabular-nums; font-weight: 600; }
+table.cenarios { min-width: 980px; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 1px 8px; border-radius: 999px; white-space: nowrap; }
+.auto-sim { background: var(--ok-bg); color: var(--ok); }
+.auto-nao { background: var(--codigo); color: var(--sec); white-space: normal; }
+.m-positivo { background: var(--pos-bg); color: var(--pos); }
+.m-negativo { background: var(--neg-bg); color: var(--neg); }
+.m-smoke { background: var(--smoke-bg); color: var(--acento); }
+.prio { font-weight: 700; }
+.prio-A { color: var(--erro); } .prio-M { color: var(--neg); } .prio-B { color: var(--sec); }
+.barras { background: var(--papel); border: 1px solid var(--linha); border-radius: 10px; padding: 16px 18px; }
+.barra-linha { display: grid; grid-template-columns: 190px 1fr 190px; gap: 12px; align-items: center; padding: 5px 0; font-size: 14px; }
+.barra-trilho { height: 10px; background: var(--codigo); border-radius: 5px; overflow: hidden; }
+.barra { display: block; height: 100%; background: var(--barra); border-radius: 5px; }
+.barra-val { color: var(--sec); font-variant-numeric: tabular-nums; font-size: 13px; }
+.filtros { position: sticky; top: 0; z-index: 5; background: var(--bg); padding: 12px 0; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-bottom: 1px solid var(--linha); }
+.filtros input, .filtros select { font: inherit; font-size: 14px; color: var(--tinta); background: var(--papel); border: 1px solid var(--linha); border-radius: 8px; padding: 7px 10px; }
+.filtros input { flex: 1 1 220px; }
+.filtros .cont { font-size: 13px; color: var(--sec); margin-left: auto; }
+.caso { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); gap: 20px; background: var(--papel); border: 1px solid var(--linha); border-radius: 12px; padding: 18px; margin: 14px 0; scroll-margin-top: 70px; }
+.caso-topo { display: flex; gap: 10px; align-items: center; font-size: 13px; }
+.num { font-family: var(--mono); font-weight: 700; color: var(--acento); }
+.status { font-weight: 700; text-transform: uppercase; font-size: 11px; letter-spacing: .06em; padding: 2px 8px; border-radius: 4px; }
+.st-aprovado { background: var(--ok-bg); color: var(--ok); }
+.st-reprovado { background: var(--erro-bg); color: var(--erro); }
+.tempo { color: var(--sec); font-variant-numeric: tabular-nums; margin-left: auto; }
+.caso h4 { margin: 8px 0 2px; font-size: 17px; }
+.caso p { margin: 6px 0; font-size: 14px; }
+.caso .cen { color: var(--sec); font-size: 13px; }
+.rot, .dado span { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--sec); font-weight: 600; }
+.dado { background: var(--acento-suave); border-radius: 6px; padding: 6px 10px; }
+.nodeid { margin-top: 10px !important; }
+.nodeid code { font-size: 12px; }
+.shot { font-size: 13px; }
+.caso-video video { width: 100%; border-radius: 8px; background: #000; aspect-ratio: 16 / 10; display: block; }
+.ancora { position: relative; top: -70px; }
+.video-suite { width: 100%; border-radius: 10px; background: #000; display: block; }
+figure { margin: 16px 0; }
+figure img { max-width: 100%; border: 1px solid var(--linha); border-radius: 8px; display: block; }
+figcaption { font-size: 13px; color: var(--sec); margin-top: 6px; }
+.falha { border-left: 3px solid var(--erro); background: var(--papel); border-radius: 0 10px 10px 0; padding: 4px 18px; }
+pre { background: var(--codigo); padding: 12px 14px; border-radius: 8px; overflow-x: auto; font: 13px/1.5 var(--mono); }
+dl.passos dt { font-weight: 600; margin-top: 10px; }
+dl.passos dd { margin: 2px 0 0; color: var(--sec); max-width: 72ch; }
+.oculto { display: none !important; }
+footer { margin-top: 64px; font-size: 13px; color: var(--sec); border-top: 1px solid var(--linha); padding-top: 16px; }
+@media (max-width: 960px) {
+  .layout { grid-template-columns: 1fr; padding: 0 16px; gap: 0; }
+  nav.indice { display: none; }
+  .caso { grid-template-columns: 1fr; }
+  .barra-linha { grid-template-columns: 1fr; gap: 4px; }
+}
+@media print {
+  nav.indice, .filtros { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  .caso { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="indice">
+  <b>Sumário</b>
+  <a href="#sistema">1. Sistema testado</a>
+  <a href="#ferramenta">2. Ferramenta e arquitetura</a>
+  <a href="#plano">3. Planejamento</a>
+  <a href="#conteudos">4. Conteúdos da disciplina</a>
+  <a href="#execucao">5. Resultado da execução</a>
+  <a href="#casos">6. Casos de teste com vídeo</a>
+  <a href="#falha">7. Investigação de falha</a>
+  <a href="#suite">8. Vídeo da suíte completa</a>
+  <a href="#executar">9. Como executar</a>
+</nav>
+<main>
+<header class="capa">
+  <div class="sobre">Testes automatizados · 2ª etapa</div>
+  <h1>O.V.N.I. — Órgão de Viagens Não Identificadas</h1>
+  <p class="lead">Suíte de testes automatizados com Selenium WebDriver, Python e pytest para uma agência fictícia de turismo por abdução alienígena, criada para este trabalho.</p>
+  <div class="meta">
+    <span>Ferramenta <strong>Selenium + Python + pytest</strong></span>
+    <span>Navegador <strong>Chrome headless</strong></span>
+    <span>Execução <strong>10/11/2026 às 17:06</strong></span>
+  </div>
+  <div class="kpis">
+    <div class="kpi ok"><div class="v">50/50</div><div class="r">testes aprovados</div></div>
+    <div class="kpi"><div class="v">27</div><div class="r">cenários automatizados de 33 levantados</div></div>
+    <div class="kpi"><div class="v">21 / 29</div><div class="r">positivos / negativos</div></div>
+    <div class="kpi"><div class="v">4 min 12 s</div><div class="r">tempo total da suíte</div></div>
+  </div>
+</header>
+
+<h2 id="sistema"><span class="n">1</span>Sistema testado</h2>
+<p>Aplicação web própria (HTML, CSS e JavaScript, sem backend, estado em <code>localStorage</code>), criada para este trabalho. Não é nenhum dos exemplos usados em aula. O site fica em <code>site/</code> e a suíte sobe um servidor HTTP local sozinha. Login de teste: <code>agente@ovni.gov</code> / <code>area51</code>.</p>
+<p>Fluxos identificados na exploração manual:</p>
+<div class="tabela"><table class=""><thead><tr><th>Fluxo</th><th>Tela</th><th>Regras observadas</th></tr></thead><tbody><tr><td>Autenticação</td><td><code>#/login</code></td><td>Validação de campos, verificação assíncrona (~0,7 s), bloqueio após 3 senhas erradas, rotas protegidas</td></tr><tr><td>Catálogo</td><td><code>#/catalogo</code></td><td>8 pacotes, busca com debounce (0,4 s) ignorando acento/caixa, filtro por categoria, ordenação</td></tr><tr><td>Carrinho (&quot;raio trator&quot;)</td><td><code>#/carrinho</code></td><td>Quantidade de 1 a 5, remoção, cupons percentuais, totais, badge no menu</td></tr><tr><td>Agendamento</td><td><code>#/checkout</code></td><td>Nome ≥ 3 caracteres, idade 18–120, tipo sanguíneo, data futura DD/MM/AAAA, termo obrigatório; processamento assíncrono (~1,5 s); protocolo <code>ABD-000000</code></td></tr><tr><td>Histórico</td><td><code>#/abducoes</code></td><td>Lista persistida, cancelamento com modal de confirmação</td></tr></tbody></table></div>
+
+<h2 id="ferramenta"><span class="n">2</span>Ferramenta e arquitetura</h2>
+<p><strong>Opção A: Selenium WebDriver + Python + pytest</strong>, com Page Objects, fixtures e <code>pytest-html</code>. O driver do Chrome é baixado pelo Selenium Manager.</p>
+<pre>site/                      sistema sob teste (HTML + CSS + JS, estado em localStorage)
+tests/
+  conftest.py              setup/teardown: servidor, driver, sessão, evidências
+  gravador.py              gravação opcional da execução em MP4
+  pages/                   Page Objects (um por tela) + base com esperas explícitas
+  data/checkout_invalidos.json   massa dos testes orientados a dados
+  test_login.py            autenticação, bloqueio, rotas protegidas, logout
+  test_catalogo.py         listagem, busca, filtro, ordenação
+  test_carrinho.py         itens, quantidades, cupons, totais
+  test_checkout.py         validações do formulário e agendamento ponta a ponta
+  test_abducoes.py         histórico, cancelamento, persistência
+docs/PLANO_DE_TESTES.md    planejamento da automação
+evidencias/                relatório HTML, JUnit XML, screenshots e vídeos</pre>
+
+<h2 id="plano"><span class="n">3</span>Planejamento</h2>
+<p>Prioridade: <span class="prio prio-A">A</span> bloqueia o uso do sistema ou envolve dinheiro; <span class="prio prio-M">M</span> regra de negócio relevante; <span class="prio prio-B">B</span> cosmético ou raro. Os números dos cenários automatizados levam aos testes correspondentes.</p>
+<div class="tabela"><table class="cenarios"><thead><tr><th>#</th><th>Funcionalidade</th><th>Objetivo</th><th>Resultado esperado</th><th>Prior.</th><th>Automatizar?</th><th>Justificativa</th></tr></thead><tbody><tr><td><a href="#cen-01">01</a></td><td>Login</td><td>Entrar com credenciais válidas</td><td>Vai ao catálogo e mostra &quot;Olá, Agente K&quot;</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Porta de entrada de todos os fluxos; repetido a cada regressão</td></tr><tr><td><a href="#cen-02">02</a></td><td>Login</td><td>Rejeitar campos vazios / e-mail malformado / credenciais erradas</td><td>Mensagem específica; permanece no login</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Vários dados para a mesma regra: ideal para parametrização</td></tr><tr><td><a href="#cen-03">03</a></td><td>Login</td><td>Bloquear após 3 tentativas erradas</td><td>Mensagem de bloqueio, botão desabilitado, persiste ao recarregar</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Regra de segurança; tedioso e sujeito a erro manualmente</td></tr><tr><td><a href="#cen-04">04</a></td><td>Controle de acesso</td><td>Acessar rota interna sem sessão</td><td>Redireciona para o login</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Falha aqui expõe todo o sistema; barato de automatizar</td></tr><tr><td><a href="#cen-05">05</a></td><td>Logout</td><td>Encerrar sessão</td><td>Volta ao login, sessão removida, rota interna bloqueada</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Complementa 04; estável</td></tr><tr><td><a href="#cen-06">06</a></td><td>Catálogo</td><td>Listar todos os pacotes</td><td>8 cards e contador &quot;8 sinais detectados&quot;</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Teste de sanidade rápido</td></tr><tr><td><a href="#cen-07">07</a></td><td>Catálogo</td><td>Buscar por nome, descrição, sem acento</td><td>Só os pacotes correspondentes</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Orientado a dados; exige sincronização com o debounce</td></tr><tr><td><a href="#cen-08">08</a></td><td>Catálogo</td><td>Buscar termo inexistente</td><td>Estado vazio e contador zero</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Caminho negativo determinístico</td></tr><tr><td><a href="#cen-09">09</a></td><td>Catálogo</td><td>Filtrar por categoria</td><td>Só pacotes da categoria</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Regra simples e estável</td></tr><tr><td><a href="#cen-10">10</a></td><td>Catálogo</td><td>Ordenar por preço (asc/desc)</td><td>Lista em ordem numérica</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Conferir ordem de 8 preços à mão é propenso a erro</td></tr><tr><td><a href="#cen-11">11</a></td><td>Catálogo</td><td>Combinar busca e filtro sem interseção</td><td>Estado vazio</td><td><span class="prio prio-B">B</span></td><td><span class="tag auto-sim">Sim</span></td><td>Custo marginal baixo reaproveitando o page object</td></tr><tr><td><a href="#cen-12">12</a></td><td>Carrinho</td><td>Adicionar pacotes pelo catálogo</td><td>Badge incrementa, aviso aparece, itens e total corretos</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Caminho crítico de venda</td></tr><tr><td><a href="#cen-13">13</a></td><td>Carrinho</td><td>Aumentar quantidade</td><td>Subtotal, total e badge recalculados</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Cálculo monetário</td></tr><tr><td><a href="#cen-14">14</a></td><td>Carrinho</td><td>Respeitar limites 1–5</td><td>Botões − e + desabilitam nos limites</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Valor-limite; fácil de esquecer em teste manual</td></tr><tr><td><a href="#cen-15">15</a></td><td>Carrinho</td><td>Remover item</td><td>Item some, total e badge atualizam</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Cálculo monetário</td></tr><tr><td><a href="#cen-16">16</a></td><td>Cupom</td><td>Aplicar cupom válido (10% e 50%, minúsculas)</td><td>Desconto e total corretos</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Dinheiro; parametrizável</td></tr><tr><td><a href="#cen-17">17</a></td><td>Cupom</td><td>Rejeitar cupom inexistente / em branco</td><td>Mensagem de erro; total inalterado</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Negativo determinístico</td></tr><tr><td><a href="#cen-18">18</a></td><td>Carrinho</td><td>Impedir agendamento com carrinho vazio</td><td>Botão desabilitado; URL direta devolve ao carrinho</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Evita pedido sem itens</td></tr><tr><td><a href="#cen-19">19</a></td><td>Agendamento</td><td>Concluir com dados válidos</td><td>Protocolo <code>ABD-\d{6}</code>, carrinho esvazia, registro &quot;AGENDADA&quot; no histórico</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Fluxo ponta a ponta mais importante</td></tr><tr><td><a href="#cen-20">20</a></td><td>Agendamento</td><td>Cobrar total com cupom</td><td>Total do checkout e da confirmação com desconto</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Integração carrinho → checkout</td></tr><tr><td><a href="#cen-21">21</a></td><td>Agendamento</td><td>Aceitar idades-limite 18 e 120</td><td>Agendamento concluído</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Análise de valor-limite</td></tr><tr><td><a href="#cen-22">22</a></td><td>Agendamento</td><td>Rejeitar cada campo inválido (10 variações)</td><td>Erro só no campo inválido; nada é gravado</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Data-driven (JSON); 10 combinações manuais a cada regressão é inviável</td></tr><tr><td><a href="#cen-23">23</a></td><td>Agendamento</td><td>Enviar formulário em branco</td><td>Todos os campos acusam erro; carrinho intacto</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Complementa 22</td></tr><tr><td><a href="#cen-24">24</a></td><td>Histórico</td><td>Exibir estado vazio</td><td>Mensagem de histórico vazio</td><td><span class="prio prio-B">B</span></td><td><span class="tag auto-sim">Sim</span></td><td>Rápido e estável</td></tr><tr><td><a href="#cen-25">25</a></td><td>Histórico</td><td>Cancelar abdução</td><td>Status &quot;CANCELADA&quot;, sem botão, persiste ao recarregar, demais intactas</td><td><span class="prio prio-A">A</span></td><td><span class="tag auto-sim">Sim</span></td><td>Altera estado persistido</td></tr><tr><td><a href="#cen-26">26</a></td><td>Histórico</td><td>Desistir no modal</td><td>Status permanece &quot;AGENDADA&quot;</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Negativo do 25</td></tr><tr><td><a href="#cen-27">27</a></td><td>Segurança</td><td>Nome com HTML no histórico</td><td>Exibido como texto; script não executa</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-sim">Sim</span></td><td>Regressão de XSS é silenciosa para o olho humano</td></tr><tr><td>28</td><td>Visual</td><td>Animações (disco, glitch, letreiro), cores neon</td><td>Aparência conforme o design</td><td><span class="prio prio-B">B</span></td><td><span class="tag auto-nao"><strong>Não</strong></span></td><td>Julgamento subjetivo; asserção por pixel seria frágil. Revisão visual manual</td></tr><tr><td>29</td><td>Responsividade</td><td>Layout em celular (&lt; 700 px)</td><td>Filtros e formulário em uma coluna</td><td><span class="prio prio-B">B</span></td><td><span class="tag auto-nao"><strong>Não</strong></span></td><td>Melhor verificado por exploração manual em dispositivos reais; baixo risco funcional</td></tr><tr><td>30</td><td>Acessibilidade</td><td>Navegação por teclado e leitor de tela</td><td>Foco visível, rótulos lidos</td><td><span class="prio prio-M">M</span></td><td><span class="tag auto-nao"><strong>Não</strong> (nesta suíte)</span></td><td>Exige ferramenta específica (axe) e avaliação humana; fora do escopo de Selenium funcional</td></tr><tr><td>31</td><td>Aviso (toast)</td><td>Sumir após 2,5 s</td><td>Aviso desaparece sozinho</td><td><span class="prio prio-B">B</span></td><td><span class="tag auto-nao"><strong>Não</strong></span></td><td>Dependente de tempo: teste lento e instável para ganho mínimo</td></tr><tr><td>32</td><td>Protocolo</td><td>Unicidade entre agendamentos</td><td>Protocolos nunca se repetem</td><td><span class="prio prio-B">B</span></td><td><span class="tag auto-nao"><strong>Não</strong></span></td><td>Geração aleatória: colisão não é reproduzível via UI; caberia teste unitário</td></tr><tr><td>33</td><td>Compatibilidade</td><td>Firefox / Edge</td><td>Mesmo comportamento</td><td><span class="prio prio-B">B</span></td><td><span class="tag auto-nao"><strong>Não</strong> (por ora)</span></td><td>Suíte roda em Chrome; bastaria nova fixture, adiado por custo de tempo de execução</td></tr></tbody></table></div>
+<h3>Cenários implementados por módulo</h3>
+<div class="tabela"><table><thead><tr><th>Módulo</th><th>Funcionalidade</th><th>Testes</th><th>Positivos</th><th>Negativos</th><th>Tempo</th></tr></thead>
+<tbody><tr><td><code>tests/test_login.py</code></td><td>Autenticação e acesso</td><td>12</td><td>2</td><td>10</td><td>50.5 s</td></tr><tr><td><code>tests/test_catalogo.py</code></td><td>Catálogo</td><td>10</td><td>8</td><td>2</td><td>37.0 s</td></tr><tr><td><code>tests/test_carrinho.py</code></td><td>Carrinho e cupons</td><td>9</td><td>5</td><td>4</td><td>31.7 s</td></tr><tr><td><code>tests/test_checkout.py</code></td><td>Agendamento (checkout)</td><td>15</td><td>4</td><td>11</td><td>71.8 s</td></tr><tr><td><code>tests/test_abducoes.py</code></td><td>Histórico de abduções</td><td>4</td><td>2</td><td>2</td><td>14.9 s</td></tr><tr><td><strong>Total</strong></td><td>27 cenários</td><td><strong>50</strong></td><td>21</td><td>29</td><td>251.6 s</td></tr></tbody></table></div>
+<p>A diferença entre cenários e testes vem da parametrização: cada conjunto de dados cobre uma classe de equivalência ou valor-limite distinto (ex.: idade 17, 121 e não numérica), não repetições arbitrárias.</p>
+
+<h2 id="conteudos"><span class="n">4</span>Onde cada conteúdo da disciplina aparece</h2>
+<div class="tabela"><table class=""><thead><tr><th>Conteúdo</th><th>Onde</th></tr></thead><tbody><tr><td>Seletores</td><td><code>data-testid</code> via CSS (<code>base_page.tid</code>), CSS composto por linha da tabela (<code>carrinho_page._na_linha</code>), XPath relativo do título ao botão do card (<code>catalogo_page.abduzir</code>)</td></tr><tr><td>Esperas e sincronização</td><td>Só esperas explícitas (<code>WebDriverWait</code>), nenhum <code>sleep</code>: debounce da busca (<code>CatalogoPage.buscar</code>), login assíncrono (<code>aguardar_erro_contendo</code>), overlay de processamento (<code>CheckoutPage.aguardar_confirmacao</code>), modal (<code>AbducoesPage</code>)</td></tr><tr><td>Assertions</td><td>Todo teste verifica o efeito de negócio: valores monetários, regex do protocolo, status, rota, conteúdo do <code>localStorage</code> — não apenas &quot;elemento existe&quot;</td></tr><tr><td>Positivos e negativos</td><td>Marcadores <code>positivo</code> (21 testes) e <code>negativo</code> (29 testes)</td></tr><tr><td>Reutilização</td><td>Page Objects, <code>BasePage</code>, fixtures <code>sessao</code> e <code>carrinho_com</code></td></tr><tr><td>Parametrização / dados</td><td><code>@pytest.mark.parametrize</code> em login, busca, ordenação, cupons; checkout negativo lido de JSON</td></tr><tr><td>Setup e teardown</td><td>Fixtures com <code>yield</code>: servidor por sessão, navegador limpo por teste</td></tr><tr><td>Organização</td><td>Um módulo por funcionalidade, marcadores <code>smoke</code>/<code>positivo</code>/<code>negativo</code> em <code>pytest.ini</code></td></tr><tr><td>Relatórios e evidências</td><td><code>pytest-html</code> autocontido com screenshot e URL final de cada teste; JUnit XML; PNGs nomeados por teste</td></tr></tbody></table></div>
+
+<h2 id="execucao"><span class="n">5</span>Resultado da execução</h2>
+<p>Execução de 10/11/2026 às 17:06, a mesma gravada nos vídeos: <strong>50 aprovados, 0 reprovados</strong>, 251.6 s em Chrome headless, com um navegador novo por teste para isolar o <code>localStorage</code>. 3 testes marcados como <span class="tag m-smoke">smoke</span> cobrem os fluxos críticos. Relatório original do pytest-html: <a href="evidencias/relatorio.html">evidencias/relatorio.html</a>; JUnit: <a href="evidencias/junit.xml">evidencias/junit.xml</a>.</p>
+<div class="barras"><div class="barra-linha"><span class="barra-rot">Autenticação e acesso</span><span class="barra-trilho"><span class="barra" style="width:70.3%"></span></span><span class="barra-val">12 testes · 12 ok · 50.5 s</span></div><div class="barra-linha"><span class="barra-rot">Catálogo</span><span class="barra-trilho"><span class="barra" style="width:51.6%"></span></span><span class="barra-val">10 testes · 10 ok · 37.0 s</span></div><div class="barra-linha"><span class="barra-rot">Carrinho e cupons</span><span class="barra-trilho"><span class="barra" style="width:44.1%"></span></span><span class="barra-val">9 testes · 9 ok · 31.7 s</span></div><div class="barra-linha"><span class="barra-rot">Agendamento (checkout)</span><span class="barra-trilho"><span class="barra" style="width:100.0%"></span></span><span class="barra-val">15 testes · 15 ok · 71.8 s</span></div><div class="barra-linha"><span class="barra-rot">Histórico de abduções</span><span class="barra-trilho"><span class="barra" style="width:20.7%"></span></span><span class="barra-val">4 testes · 4 ok · 14.9 s</span></div></div>
+
+<h2 id="casos"><span class="n">6</span>Casos de teste com vídeo</h2>
+<p>Cada teste tem o vídeo da execução (com nome e resultado na legenda), a ação, o resultado esperado e o screenshot final. Nos vídeos há uma pausa de 0,4 s após cada clique ou digitação, só para dar para acompanhar; a execução normal não tem pausa fixa.</p>
+<div class="filtros">
+  <input type="search" id="f-busca" placeholder="Buscar caso, dado ou mensagem…" aria-label="Buscar caso">
+  <select id="f-mod" aria-label="Módulo"><option value="">Todos os módulos</option><option value="test_login">Autenticação e acesso</option><option value="test_catalogo">Catálogo</option><option value="test_carrinho">Carrinho e cupons</option><option value="test_checkout">Agendamento (checkout)</option><option value="test_abducoes">Histórico de abduções</option></select>
+  <select id="f-mark" aria-label="Marcador"><option value="">Todos os tipos</option><option value="positivo">Positivos</option><option value="negativo">Negativos</option><option value="smoke">Smoke</option></select>
+  <span class="cont" id="f-cont">50 de 50</span>
+</div>
+<section class="grupo" data-mod="test_login"><h3>Autenticação e acesso <small>tests/test_login.py · 12 testes</small></h3><div class="ancora" id="cen-01"></div>
+<article class="caso" id="t39" data-mod="test_login" data-marks="positivo smoke" data-busca="test_login_com_credenciais_validas_abre_catalogo login com credenciais válidas  autentica com agente@ovni.gov / area51. rota vai para #/catalogo e a barra mostra “olá, agente k”.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#39</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.54 s</span>
+    </div>
+    <h4>Login com credenciais válidas</h4>
+    <p class="cen">Cenário 01 · <span class="tag m-positivo">positivo</span><span class="tag m-smoke">smoke</span></p>
+    
+    <p><span class="rot">Ação</span>Autentica com agente@ovni.gov / area51.</p>
+    <p><span class="rot">Esperado</span>Rota vai para #/catalogo e a barra mostra “Olá, Agente K”.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_login_com_credenciais_validas_abre_catalogo</code></p>
+    <a class="shot" href="evidencias/screenshots/test_login_com_credenciais_validas_abre_catalogo__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/39_test_login_com_credenciais_validas_abre_catalogo.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-02"></div>
+<article class="caso" id="t40" data-mod="test_login" data-marks="negativo" data-busca="test_login_invalido_exibe_mensagem_e_nao_autentica[email_vazio] login inválido é rejeitado e-mail vazio → “informe o e-mail do agente.” envia o formulário de login com um dado inválido. mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#40</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.47 s</span>
+    </div>
+    <h4>Login inválido é rejeitado</h4>
+    <p class="cen">Cenário 02 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>E-mail vazio → “Informe o e-mail do agente.”</p>
+    <p><span class="rot">Ação</span>Envia o formulário de login com um dado inválido.</p>
+    <p><span class="rot">Esperado</span>Mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_login_invalido_exibe_mensagem_e_nao_autentica[email_vazio]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_login_invalido_exibe_mensagem_e_nao_autentica_email_vazio__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/40_test_login_invalido_exibe_mensagem_e_nao_autentica_email_vazio.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t41" data-mod="test_login" data-marks="negativo" data-busca="test_login_invalido_exibe_mensagem_e_nao_autentica[email_sem_arroba] login inválido é rejeitado agente.ovni.gov → “e-mail em formato inválido.” envia o formulário de login com um dado inválido. mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#41</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.55 s</span>
+    </div>
+    <h4>Login inválido é rejeitado</h4>
+    <p class="cen">Cenário 02 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>agente.ovni.gov → “E-mail em formato inválido.”</p>
+    <p><span class="rot">Ação</span>Envia o formulário de login com um dado inválido.</p>
+    <p><span class="rot">Esperado</span>Mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_login_invalido_exibe_mensagem_e_nao_autentica[email_sem_arroba]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_login_invalido_exibe_mensagem_e_nao_autentica_email_sem_arroba__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/41_test_login_invalido_exibe_mensagem_e_nao_autentica_email_sem_arroba.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t42" data-mod="test_login" data-marks="negativo" data-busca="test_login_invalido_exibe_mensagem_e_nao_autentica[senha_vazia] login inválido é rejeitado senha vazia → “informe a senha.” envia o formulário de login com um dado inválido. mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#42</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.35 s</span>
+    </div>
+    <h4>Login inválido é rejeitado</h4>
+    <p class="cen">Cenário 02 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Senha vazia → “Informe a senha.”</p>
+    <p><span class="rot">Ação</span>Envia o formulário de login com um dado inválido.</p>
+    <p><span class="rot">Esperado</span>Mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_login_invalido_exibe_mensagem_e_nao_autentica[senha_vazia]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_login_invalido_exibe_mensagem_e_nao_autentica_senha_vazia__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/42_test_login_invalido_exibe_mensagem_e_nao_autentica_senha_vazia.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t43" data-mod="test_login" data-marks="negativo" data-busca="test_login_invalido_exibe_mensagem_e_nao_autentica[senha_errada] login inválido é rejeitado senha area52 → “credenciais não reconhecidas. tentativa 1 de 3.” envia o formulário de login com um dado inválido. mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#43</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.87 s</span>
+    </div>
+    <h4>Login inválido é rejeitado</h4>
+    <p class="cen">Cenário 02 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Senha area52 → “Credenciais não reconhecidas. Tentativa 1 de 3.”</p>
+    <p><span class="rot">Ação</span>Envia o formulário de login com um dado inválido.</p>
+    <p><span class="rot">Esperado</span>Mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_login_invalido_exibe_mensagem_e_nao_autentica[senha_errada]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_login_invalido_exibe_mensagem_e_nao_autentica_senha_errada__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/43_test_login_invalido_exibe_mensagem_e_nao_autentica_senha_errada.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t44" data-mod="test_login" data-marks="negativo" data-busca="test_login_invalido_exibe_mensagem_e_nao_autentica[usuario_inexistente] login inválido é rejeitado et@casa.com → “credenciais não reconhecidas. tentativa 1 de 3.” envia o formulário de login com um dado inválido. mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#44</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.68 s</span>
+    </div>
+    <h4>Login inválido é rejeitado</h4>
+    <p class="cen">Cenário 02 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>et@casa.com → “Credenciais não reconhecidas. Tentativa 1 de 3.”</p>
+    <p><span class="rot">Ação</span>Envia o formulário de login com um dado inválido.</p>
+    <p><span class="rot">Esperado</span>Mensagem de erro específica, permanece em #/login e a barra de usuário não aparece.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_login_invalido_exibe_mensagem_e_nao_autentica[usuario_inexistente]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_login_invalido_exibe_mensagem_e_nao_autentica_usuario_inexistente__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/44_test_login_invalido_exibe_mensagem_e_nao_autentica_usuario_inexistente.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-03"></div>
+<article class="caso" id="t45" data-mod="test_login" data-marks="negativo" data-busca="test_tres_tentativas_erradas_bloqueiam_ate_a_senha_correta bloqueio após 3 tentativas  erra a senha três vezes seguidas e recarrega a página. “acesso bloqueado. os homens de preto foram notificados.”, botão desabilitado, bloqueio persiste após o refresh.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#45</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">8.69 s</span>
+    </div>
+    <h4>Bloqueio após 3 tentativas</h4>
+    <p class="cen">Cenário 03 · <span class="tag m-negativo">negativo</span></p>
+    
+    <p><span class="rot">Ação</span>Erra a senha três vezes seguidas e recarrega a página.</p>
+    <p><span class="rot">Esperado</span>“Acesso bloqueado. Os Homens de Preto foram notificados.”, botão desabilitado, bloqueio persiste após o refresh.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_tres_tentativas_erradas_bloqueiam_ate_a_senha_correta</code></p>
+    <a class="shot" href="evidencias/screenshots/test_tres_tentativas_erradas_bloqueiam_ate_a_senha_correta__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/45_test_tres_tentativas_erradas_bloqueiam_ate_a_senha_correta.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-04"></div>
+<article class="caso" id="t46" data-mod="test_login" data-marks="negativo" data-busca="test_rota_protegida_sem_sessao_redireciona_para_login[/catalogo] rota protegida sem sessão rota #/catalogo acessa uma rota interna direto pela url, sem estar logado. redireciona para #/login com o campo de e-mail visível.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#46</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.33 s</span>
+    </div>
+    <h4>Rota protegida sem sessão</h4>
+    <p class="cen">Cenário 04 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Rota #/catalogo</p>
+    <p><span class="rot">Ação</span>Acessa uma rota interna direto pela URL, sem estar logado.</p>
+    <p><span class="rot">Esperado</span>Redireciona para #/login com o campo de e-mail visível.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_rota_protegida_sem_sessao_redireciona_para_login[/catalogo]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_rota_protegida_sem_sessao_redireciona_para_login_catalogo__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/46_test_rota_protegida_sem_sessao_redireciona_para_login_catalogo.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t47" data-mod="test_login" data-marks="negativo" data-busca="test_rota_protegida_sem_sessao_redireciona_para_login[/carrinho] rota protegida sem sessão rota #/carrinho acessa uma rota interna direto pela url, sem estar logado. redireciona para #/login com o campo de e-mail visível.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#47</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.37 s</span>
+    </div>
+    <h4>Rota protegida sem sessão</h4>
+    <p class="cen">Cenário 04 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Rota #/carrinho</p>
+    <p><span class="rot">Ação</span>Acessa uma rota interna direto pela URL, sem estar logado.</p>
+    <p><span class="rot">Esperado</span>Redireciona para #/login com o campo de e-mail visível.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_rota_protegida_sem_sessao_redireciona_para_login[/carrinho]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_rota_protegida_sem_sessao_redireciona_para_login_carrinho__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/47_test_rota_protegida_sem_sessao_redireciona_para_login_carrinho.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t48" data-mod="test_login" data-marks="negativo" data-busca="test_rota_protegida_sem_sessao_redireciona_para_login[/checkout] rota protegida sem sessão rota #/checkout acessa uma rota interna direto pela url, sem estar logado. redireciona para #/login com o campo de e-mail visível.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#48</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.30 s</span>
+    </div>
+    <h4>Rota protegida sem sessão</h4>
+    <p class="cen">Cenário 04 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Rota #/checkout</p>
+    <p><span class="rot">Ação</span>Acessa uma rota interna direto pela URL, sem estar logado.</p>
+    <p><span class="rot">Esperado</span>Redireciona para #/login com o campo de e-mail visível.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_rota_protegida_sem_sessao_redireciona_para_login[/checkout]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_rota_protegida_sem_sessao_redireciona_para_login_checkout__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/48_test_rota_protegida_sem_sessao_redireciona_para_login_checkout.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t49" data-mod="test_login" data-marks="negativo" data-busca="test_rota_protegida_sem_sessao_redireciona_para_login[/abducoes] rota protegida sem sessão rota #/abducoes acessa uma rota interna direto pela url, sem estar logado. redireciona para #/login com o campo de e-mail visível.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#49</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.13 s</span>
+    </div>
+    <h4>Rota protegida sem sessão</h4>
+    <p class="cen">Cenário 04 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Rota #/abducoes</p>
+    <p><span class="rot">Ação</span>Acessa uma rota interna direto pela URL, sem estar logado.</p>
+    <p><span class="rot">Esperado</span>Redireciona para #/login com o campo de e-mail visível.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_rota_protegida_sem_sessao_redireciona_para_login[/abducoes]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_rota_protegida_sem_sessao_redireciona_para_login_abducoes__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/49_test_rota_protegida_sem_sessao_redireciona_para_login_abducoes.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-05"></div>
+<article class="caso" id="t50" data-mod="test_login" data-marks="positivo" data-busca="test_logout_encerra_sessao_e_bloqueia_retorno logout encerra a sessão  faz login, clica em sair e tenta voltar para #/catalogo pela url. cai no login de novo e a chave ovni_sessao some do localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#50</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.17 s</span>
+    </div>
+    <h4>Logout encerra a sessão</h4>
+    <p class="cen">Cenário 05 · <span class="tag m-positivo">positivo</span></p>
+    
+    <p><span class="rot">Ação</span>Faz login, clica em Sair e tenta voltar para #/catalogo pela URL.</p>
+    <p><span class="rot">Esperado</span>Cai no login de novo e a chave ovni_sessao some do localStorage.</p>
+    <p class="nodeid"><code>tests/test_login.py::test_logout_encerra_sessao_e_bloqueia_retorno</code></p>
+    <a class="shot" href="evidencias/screenshots/test_logout_encerra_sessao_e_bloqueia_retorno__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/50_test_logout_encerra_sessao_e_bloqueia_retorno.mp4#t=0.1"></video>
+  </div>
+</article></section><section class="grupo" data-mod="test_catalogo"><h3>Catálogo <small>tests/test_catalogo.py · 10 testes</small></h3><div class="ancora" id="cen-06"></div>
+<article class="caso" id="t14" data-mod="test_catalogo" data-marks="positivo" data-busca="test_catalogo_lista_os_oito_pacotes catálogo lista todos os pacotes  abre o catálogo logado. 8 cards e o contador “8 sinais detectados”.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#14</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.24 s</span>
+    </div>
+    <h4>Catálogo lista todos os pacotes</h4>
+    <p class="cen">Cenário 06 · <span class="tag m-positivo">positivo</span></p>
+    
+    <p><span class="rot">Ação</span>Abre o catálogo logado.</p>
+    <p><span class="rot">Esperado</span>8 cards e o contador “8 sinais detectados”.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_catalogo_lista_os_oito_pacotes</code></p>
+    <a class="shot" href="evidencias/screenshots/test_catalogo_lista_os_oito_pacotes__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/14_test_catalogo_lista_os_oito_pacotes.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-07"></div>
+<article class="caso" id="t15" data-mod="test_catalogo" data-marks="positivo" data-busca="test_busca_retorna_apenas_pacotes_correspondentes[termo_no_nome] busca retorna só os correspondentes “marte” → fim de semana em marte digita um termo na busca (com debounce de 0,4 s). só os pacotes esperados aparecem na lista.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#15</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.75 s</span>
+    </div>
+    <h4>Busca retorna só os correspondentes</h4>
+    <p class="cen">Cenário 07 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>“marte” → Fim de Semana em Marte</p>
+    <p><span class="rot">Ação</span>Digita um termo na busca (com debounce de 0,4 s).</p>
+    <p><span class="rot">Esperado</span>Só os pacotes esperados aparecem na lista.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_busca_retorna_apenas_pacotes_correspondentes[termo_no_nome]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_busca_retorna_apenas_pacotes_correspondentes_termo_no_nome__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/15_test_busca_retorna_apenas_pacotes_correspondentes_termo_no_nome.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t16" data-mod="test_catalogo" data-marks="positivo" data-busca="test_busca_retorna_apenas_pacotes_correspondentes[termo_so_na_descricao] busca retorna só os correspondentes “bovino” (só na descrição) → vaca vip digita um termo na busca (com debounce de 0,4 s). só os pacotes esperados aparecem na lista.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#16</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.88 s</span>
+    </div>
+    <h4>Busca retorna só os correspondentes</h4>
+    <p class="cen">Cenário 07 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>“bovino” (só na descrição) → Vaca VIP</p>
+    <p><span class="rot">Ação</span>Digita um termo na busca (com debounce de 0,4 s).</p>
+    <p><span class="rot">Esperado</span>Só os pacotes esperados aparecem na lista.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_busca_retorna_apenas_pacotes_correspondentes[termo_so_na_descricao]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_busca_retorna_apenas_pacotes_correspondentes_termo_so_na_descricao__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/16_test_busca_retorna_apenas_pacotes_correspondentes_termo_so_na_descricao.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t17" data-mod="test_catalogo" data-marks="positivo" data-busca="test_busca_retorna_apenas_pacotes_correspondentes[ignora_acento_e_caixa] busca retorna só os correspondentes “memoria” → apagão de memória digita um termo na busca (com debounce de 0,4 s). só os pacotes esperados aparecem na lista.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#17</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.18 s</span>
+    </div>
+    <h4>Busca retorna só os correspondentes</h4>
+    <p class="cen">Cenário 07 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>“MEMORIA” → Apagão de Memória</p>
+    <p><span class="rot">Ação</span>Digita um termo na busca (com debounce de 0,4 s).</p>
+    <p><span class="rot">Esperado</span>Só os pacotes esperados aparecem na lista.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_busca_retorna_apenas_pacotes_correspondentes[ignora_acento_e_caixa]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_busca_retorna_apenas_pacotes_correspondentes_ignora_acento_e_caixa__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/17_test_busca_retorna_apenas_pacotes_correspondentes_ignora_acento_e_caixa.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t18" data-mod="test_catalogo" data-marks="positivo" data-busca="test_busca_retorna_apenas_pacotes_correspondentes[varios_resultados] busca retorna só os correspondentes “pre” → dissecação simulada, sondagem premium, abdução express digita um termo na busca (com debounce de 0,4 s). só os pacotes esperados aparecem na lista.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#18</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.75 s</span>
+    </div>
+    <h4>Busca retorna só os correspondentes</h4>
+    <p class="cen">Cenário 07 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>“pre” → Dissecação Simulada, Sondagem Premium, Abdução Express</p>
+    <p><span class="rot">Ação</span>Digita um termo na busca (com debounce de 0,4 s).</p>
+    <p><span class="rot">Esperado</span>Só os pacotes esperados aparecem na lista.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_busca_retorna_apenas_pacotes_correspondentes[varios_resultados]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_busca_retorna_apenas_pacotes_correspondentes_varios_resultados__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/18_test_busca_retorna_apenas_pacotes_correspondentes_varios_resultados.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-08"></div>
+<article class="caso" id="t19" data-mod="test_catalogo" data-marks="negativo" data-busca="test_busca_sem_correspondencia_mostra_estado_vazio busca sem resultado  busca “unicórnio”. lista vazia, “nenhum sinal detectado neste quadrante.” e contador zerado.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#19</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.82 s</span>
+    </div>
+    <h4>Busca sem resultado</h4>
+    <p class="cen">Cenário 08 · <span class="tag m-negativo">negativo</span></p>
+    
+    <p><span class="rot">Ação</span>Busca “unicórnio”.</p>
+    <p><span class="rot">Esperado</span>Lista vazia, “Nenhum sinal detectado neste quadrante.” e contador zerado.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_busca_sem_correspondencia_mostra_estado_vazio</code></p>
+    <a class="shot" href="evidencias/screenshots/test_busca_sem_correspondencia_mostra_estado_vazio__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/19_test_busca_sem_correspondencia_mostra_estado_vazio.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-09"></div>
+<article class="caso" id="t20" data-mod="test_catalogo" data-marks="positivo" data-busca="test_filtro_por_categoria_exibe_somente_a_categoria filtro por categoria  filtra pela categoria turismo. só “fim de semana em marte” e “tour anéis de saturno”, todos com selo turismo.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#20</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.32 s</span>
+    </div>
+    <h4>Filtro por categoria</h4>
+    <p class="cen">Cenário 09 · <span class="tag m-positivo">positivo</span></p>
+    
+    <p><span class="rot">Ação</span>Filtra pela categoria Turismo.</p>
+    <p><span class="rot">Esperado</span>Só “Fim de Semana em Marte” e “Tour Anéis de Saturno”, todos com selo TURISMO.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_filtro_por_categoria_exibe_somente_a_categoria</code></p>
+    <a class="shot" href="evidencias/screenshots/test_filtro_por_categoria_exibe_somente_a_categoria__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/20_test_filtro_por_categoria_exibe_somente_a_categoria.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-10"></div>
+<article class="caso" id="t21" data-mod="test_catalogo" data-marks="positivo" data-busca="test_ordenacao_por_preco[crescente] ordenação por preço menor preço → ordem crescente escolhe a ordenação por preço. os 8 preços na ordem numérica pedida.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#21</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.54 s</span>
+    </div>
+    <h4>Ordenação por preço</h4>
+    <p class="cen">Cenário 10 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>Menor preço → ordem crescente</p>
+    <p><span class="rot">Ação</span>Escolhe a ordenação por preço.</p>
+    <p><span class="rot">Esperado</span>Os 8 preços na ordem numérica pedida.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_ordenacao_por_preco[crescente]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_ordenacao_por_preco_crescente__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/21_test_ordenacao_por_preco_crescente.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t22" data-mod="test_catalogo" data-marks="positivo" data-busca="test_ordenacao_por_preco[decrescente] ordenação por preço maior preço → ordem decrescente escolhe a ordenação por preço. os 8 preços na ordem numérica pedida.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#22</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.64 s</span>
+    </div>
+    <h4>Ordenação por preço</h4>
+    <p class="cen">Cenário 10 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>Maior preço → ordem decrescente</p>
+    <p><span class="rot">Ação</span>Escolhe a ordenação por preço.</p>
+    <p><span class="rot">Esperado</span>Os 8 preços na ordem numérica pedida.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_ordenacao_por_preco[decrescente]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_ordenacao_por_preco_decrescente__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/22_test_ordenacao_por_preco_decrescente.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-11"></div>
+<article class="caso" id="t23" data-mod="test_catalogo" data-marks="negativo" data-busca="test_busca_e_filtro_combinados_sem_intersecao busca + filtro sem interseção  filtra rural e busca “marte” (marte é turismo). estado vazio.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#23</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.92 s</span>
+    </div>
+    <h4>Busca + filtro sem interseção</h4>
+    <p class="cen">Cenário 11 · <span class="tag m-negativo">negativo</span></p>
+    
+    <p><span class="rot">Ação</span>Filtra Rural e busca “marte” (Marte é Turismo).</p>
+    <p><span class="rot">Esperado</span>Estado vazio.</p>
+    <p class="nodeid"><code>tests/test_catalogo.py::test_busca_e_filtro_combinados_sem_intersecao</code></p>
+    <a class="shot" href="evidencias/screenshots/test_busca_e_filtro_combinados_sem_intersecao__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/23_test_busca_e_filtro_combinados_sem_intersecao.mp4#t=0.1"></video>
+  </div>
+</article></section><section class="grupo" data-mod="test_carrinho"><h3>Carrinho e cupons <small>tests/test_carrinho.py · 9 testes</small></h3><div class="ancora" id="cen-12"></div>
+<article class="caso" id="t05" data-mod="test_carrinho" data-marks="positivo smoke" data-busca="test_adicionar_pacotes_pelo_catalogo_atualiza_badge_e_carrinho adicionar pacotes pelo catálogo  clica em abduzir em abdução express e vaca vip e abre o carrinho. badge 0 → 1 → 2, aviso “fisgado pelo raio trator!”, 2 itens e total r$ 548,00.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#05</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.34 s</span>
+    </div>
+    <h4>Adicionar pacotes pelo catálogo</h4>
+    <p class="cen">Cenário 12 · <span class="tag m-positivo">positivo</span><span class="tag m-smoke">smoke</span></p>
+    
+    <p><span class="rot">Ação</span>Clica em Abduzir em Abdução Express e Vaca VIP e abre o carrinho.</p>
+    <p><span class="rot">Esperado</span>Badge 0 → 1 → 2, aviso “fisgado pelo raio trator!”, 2 itens e total R$ 548,00.</p>
+    <p class="nodeid"><code>tests/test_carrinho.py::test_adicionar_pacotes_pelo_catalogo_atualiza_badge_e_carrinho</code></p>
+    <a class="shot" href="evidencias/screenshots/test_adicionar_pacotes_pelo_catalogo_atualiza_badge_e_carrinho__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/05_test_adicionar_pacotes_pelo_catalogo_atualiza_badge_e_carrinho.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-13"></div>
+<article class="caso" id="t06" data-mod="test_carrinho" data-marks="positivo" data-busca="test_aumentar_quantidade_recalcula_subtotal_e_total aumentar quantidade recalcula valores  com express + vaca no carrinho, aumenta o express duas vezes. quantidade 3, subtotal r$ 597,00, total r$ 946,00, badge 4.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#06</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.46 s</span>
+    </div>
+    <h4>Aumentar quantidade recalcula valores</h4>
+    <p class="cen">Cenário 13 · <span class="tag m-positivo">positivo</span></p>
+    
+    <p><span class="rot">Ação</span>Com Express + Vaca no carrinho, aumenta o Express duas vezes.</p>
+    <p><span class="rot">Esperado</span>Quantidade 3, subtotal R$ 597,00, total R$ 946,00, badge 4.</p>
+    <p class="nodeid"><code>tests/test_carrinho.py::test_aumentar_quantidade_recalcula_subtotal_e_total</code></p>
+    <a class="shot" href="evidencias/screenshots/test_aumentar_quantidade_recalcula_subtotal_e_total__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/06_test_aumentar_quantidade_recalcula_subtotal_e_total.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-14"></div>
+<article class="caso" id="t07" data-mod="test_carrinho" data-marks="negativo" data-busca="test_quantidade_respeita_limites_de_1_a_5 quantidade limitada de 1 a 5  verifica o botão − em 1 e aumenta até 5. − desabilitado em 1; + desabilitado em 5.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#07</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.57 s</span>
+    </div>
+    <h4>Quantidade limitada de 1 a 5</h4>
+    <p class="cen">Cenário 14 · <span class="tag m-negativo">negativo</span></p>
+    
+    <p><span class="rot">Ação</span>Verifica o botão − em 1 e aumenta até 5.</p>
+    <p><span class="rot">Esperado</span>− desabilitado em 1; + desabilitado em 5.</p>
+    <p class="nodeid"><code>tests/test_carrinho.py::test_quantidade_respeita_limites_de_1_a_5</code></p>
+    <a class="shot" href="evidencias/screenshots/test_quantidade_respeita_limites_de_1_a_5__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/07_test_quantidade_respeita_limites_de_1_a_5.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-15"></div>
+<article class="caso" id="t08" data-mod="test_carrinho" data-marks="positivo" data-busca="test_remover_item_atualiza_lista_e_total remover item  remove a abdução express do carrinho. sobra só a vaca vip, total r$ 349,00, badge 1.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#08</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.35 s</span>
+    </div>
+    <h4>Remover item</h4>
+    <p class="cen">Cenário 15 · <span class="tag m-positivo">positivo</span></p>
+    
+    <p><span class="rot">Ação</span>Remove a Abdução Express do carrinho.</p>
+    <p><span class="rot">Esperado</span>Sobra só a Vaca VIP, total R$ 349,00, badge 1.</p>
+    <p class="nodeid"><code>tests/test_carrinho.py::test_remover_item_atualiza_lista_e_total</code></p>
+    <a class="shot" href="evidencias/screenshots/test_remover_item_atualiza_lista_e_total__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/08_test_remover_item_atualiza_lista_e_total.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-16"></div>
+<article class="caso" id="t09" data-mod="test_carrinho" data-marks="positivo" data-busca="test_cupom_valido_aplica_desconto_percentual[cupom_10_porcento] cupom válido aplica desconto terraplana10 → 10% (total r$ 493,20) aplica um cupom válido sobre r$ 548,00. mensagem de confirmação, desconto e total corretos.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#09</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.51 s</span>
+    </div>
+    <h4>Cupom válido aplica desconto</h4>
+    <p class="cen">Cenário 16 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>TERRAPLANA10 → 10% (total R$ 493,20)</p>
+    <p><span class="rot">Ação</span>Aplica um cupom válido sobre R$ 548,00.</p>
+    <p><span class="rot">Esperado</span>Mensagem de confirmação, desconto e total corretos.</p>
+    <p class="nodeid"><code>tests/test_carrinho.py::test_cupom_valido_aplica_desconto_percentual[cupom_10_porcento]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_cupom_valido_aplica_desconto_percentual_cupom_10_porcento__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/09_test_cupom_valido_aplica_desconto_percentual_cupom_10_porcento.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t10" data-mod="test_carrinho" data-marks="positivo" data-busca="test_cupom_valido_aplica_desconto_percentual[cupom_50_porcento_minusculo] cupom válido aplica desconto vaca50 em minúsculas → 50% (total r$ 274,00) aplica um cupom válido sobre r$ 548,00. mensagem de confirmação, desconto e total corretos.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#10</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.32 s</span>
+    </div>
+    <h4>Cupom válido aplica desconto</h4>
+    <p class="cen">Cenário 16 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>vaca50 em minúsculas → 50% (total R$ 274,00)</p>
+    <p><span class="rot">Ação</span>Aplica um cupom válido sobre R$ 548,00.</p>
+    <p><span class="rot">Esperado</span>Mensagem de confirmação, desconto e total corretos.</p>
+    <p class="nodeid"><code>tests/test_carrinho.py::test_cupom_valido_aplica_desconto_percentual[cupom_50_porcento_minusculo]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_cupom_valido_aplica_desconto_percentual_cupom_50_porcento_minusculo__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/10_test_cupom_valido_aplica_desconto_percentual_cupom_50_porcento_minusculo.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-17"></div>
+<article class="caso" id="t11" data-mod="test_carrinho" data-marks="negativo" data-busca="test_cupom_invalido_mostra_erro_e_nao_altera_total[cupom_inexistente] cupom inválido é rejeitado et100 → “cupom não reconhecido por nenhuma civilização.” aplica um cupom inválido. mensagem de erro, desconto zero, total inalterado.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#11</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.43 s</span>
+    </div>
+    <h4>Cupom inválido é rejeitado</h4>
+    <p class="cen">Cenário 17 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>ET100 → “Cupom não reconhecido por nenhuma civilização.”</p>
+    <p><span class="rot">Ação</span>Aplica um cupom inválido.</p>
+    <p><span class="rot">Esperado</span>Mensagem de erro, desconto zero, total inalterado.</p>
+    <p class="nodeid"><code>tests/test_carrinho.py::test_cupom_invalido_mostra_erro_e_nao_altera_total[cupom_inexistente]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_cupom_invalido_mostra_erro_e_nao_altera_total_cupom_inexistente__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/11_test_cupom_invalido_mostra_erro_e_nao_altera_total_cupom_inexistente.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t12" data-mod="test_carrinho" data-marks="negativo" data-busca="test_cupom_invalido_mostra_erro_e_nao_altera_total[cupom_em_branco] cupom inválido é rejeitado só espaços → “digite um cupom.” aplica um cupom inválido. mensagem de erro, desconto zero, total inalterado.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#12</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.44 s</span>
+    </div>
+    <h4>Cupom inválido é rejeitado</h4>
+    <p class="cen">Cenário 17 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Só espaços → “Digite um cupom.”</p>
+    <p><span class="rot">Ação</span>Aplica um cupom inválido.</p>
+    <p><span class="rot">Esperado</span>Mensagem de erro, desconto zero, total inalterado.</p>
+    <p class="nodeid"><code>tests/test_carrinho.py::test_cupom_invalido_mostra_erro_e_nao_altera_total[cupom_em_branco]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_cupom_invalido_mostra_erro_e_nao_altera_total_cupom_em_branco__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/12_test_cupom_invalido_mostra_erro_e_nao_altera_total_cupom_em_branco.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-18"></div>
+<article class="caso" id="t13" data-mod="test_carrinho" data-marks="negativo" data-busca="test_carrinho_vazio_bloqueia_agendamento carrinho vazio bloqueia agendamento  abre o carrinho vazio e tenta #/checkout pela url. botão de agendar desabilitado; a url direta devolve ao carrinho.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#13</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.24 s</span>
+    </div>
+    <h4>Carrinho vazio bloqueia agendamento</h4>
+    <p class="cen">Cenário 18 · <span class="tag m-negativo">negativo</span></p>
+    
+    <p><span class="rot">Ação</span>Abre o carrinho vazio e tenta #/checkout pela URL.</p>
+    <p><span class="rot">Esperado</span>Botão de agendar desabilitado; a URL direta devolve ao carrinho.</p>
+    <p class="nodeid"><code>tests/test_carrinho.py::test_carrinho_vazio_bloqueia_agendamento</code></p>
+    <a class="shot" href="evidencias/screenshots/test_carrinho_vazio_bloqueia_agendamento__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/13_test_carrinho_vazio_bloqueia_agendamento.mp4#t=0.1"></video>
+  </div>
+</article></section><section class="grupo" data-mod="test_checkout"><h3>Agendamento (checkout) <small>tests/test_checkout.py · 15 testes</small></h3><div class="ancora" id="cen-19"></div>
+<article class="caso" id="t24" data-mod="test_checkout" data-marks="positivo smoke" data-busca="test_agendamento_valido_gera_protocolo_e_registra_no_historico agendamento válido ponta a ponta  preenche o formulário com dados válidos (carrinho r$ 897,00) e confirma. protocolo no padrão abd-000000, carrinho esvazia, registro agendada de r$ 897,00 no histórico.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#24</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">7.02 s</span>
+    </div>
+    <h4>Agendamento válido ponta a ponta</h4>
+    <p class="cen">Cenário 19 · <span class="tag m-positivo">positivo</span><span class="tag m-smoke">smoke</span></p>
+    
+    <p><span class="rot">Ação</span>Preenche o formulário com dados válidos (carrinho R$ 897,00) e confirma.</p>
+    <p><span class="rot">Esperado</span>Protocolo no padrão ABD-000000, carrinho esvazia, registro AGENDADA de R$ 897,00 no histórico.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_agendamento_valido_gera_protocolo_e_registra_no_historico</code></p>
+    <a class="shot" href="evidencias/screenshots/test_agendamento_valido_gera_protocolo_e_registra_no_historico__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/24_test_agendamento_valido_gera_protocolo_e_registra_no_historico.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-20"></div>
+<article class="caso" id="t25" data-mod="test_checkout" data-marks="positivo" data-busca="test_cupom_aplicado_no_carrinho_e_cobrado_no_agendamento cupom do carrinho é cobrado no checkout  aplica terraplana10 no carrinho e conclui o agendamento. total de r$ 807,30 no checkout e na confirmação.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#25</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">9.22 s</span>
+    </div>
+    <h4>Cupom do carrinho é cobrado no checkout</h4>
+    <p class="cen">Cenário 20 · <span class="tag m-positivo">positivo</span></p>
+    
+    <p><span class="rot">Ação</span>Aplica TERRAPLANA10 no carrinho e conclui o agendamento.</p>
+    <p><span class="rot">Esperado</span>Total de R$ 807,30 no checkout e na confirmação.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_cupom_aplicado_no_carrinho_e_cobrado_no_agendamento</code></p>
+    <a class="shot" href="evidencias/screenshots/test_cupom_aplicado_no_carrinho_e_cobrado_no_agendamento__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/25_test_cupom_aplicado_no_carrinho_e_cobrado_no_agendamento.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-21"></div>
+<article class="caso" id="t26" data-mod="test_checkout" data-marks="positivo" data-busca="test_idades_nos_limites_sao_aceitas[limite_inferior] idades-limite são aceitas idade 18 agenda com a idade no valor-limite. agendamento concluído com protocolo abd-…">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#26</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">6.05 s</span>
+    </div>
+    <h4>Idades-limite são aceitas</h4>
+    <p class="cen">Cenário 21 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>Idade 18</p>
+    <p><span class="rot">Ação</span>Agenda com a idade no valor-limite.</p>
+    <p><span class="rot">Esperado</span>Agendamento concluído com protocolo ABD-…</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_idades_nos_limites_sao_aceitas[limite_inferior]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_idades_nos_limites_sao_aceitas_limite_inferior__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/26_test_idades_nos_limites_sao_aceitas_limite_inferior.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t27" data-mod="test_checkout" data-marks="positivo" data-busca="test_idades_nos_limites_sao_aceitas[limite_superior] idades-limite são aceitas idade 120 agenda com a idade no valor-limite. agendamento concluído com protocolo abd-…">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#27</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">6.37 s</span>
+    </div>
+    <h4>Idades-limite são aceitas</h4>
+    <p class="cen">Cenário 21 · <span class="tag m-positivo">positivo</span></p>
+    <p class="dado"><span>Dado</span>Idade 120</p>
+    <p><span class="rot">Ação</span>Agenda com a idade no valor-limite.</p>
+    <p><span class="rot">Esperado</span>Agendamento concluído com protocolo ABD-…</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_idades_nos_limites_sao_aceitas[limite_superior]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_idades_nos_limites_sao_aceitas_limite_superior__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/27_test_idades_nos_limites_sao_aceitas_limite_superior.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-22"></div>
+<article class="caso" id="t28" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[nome_vazio] dado inválido impede agendamento campo nome = vazio → “informe o nome do espécime (mínimo 3 caracteres).” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#28</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.81 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo nome = vazio → “Informe o nome do espécime (mínimo 3 caracteres).”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[nome_vazio]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_nome_vazio__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/28_test_dado_invalido_impede_agendamento_nome_vazio.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t29" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[nome_curto_2_caracteres] dado inválido impede agendamento campo nome = &#x27;zé&#x27; → “informe o nome do espécime (mínimo 3 caracteres).” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#29</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.15 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo nome = &#x27;Zé&#x27; → “Informe o nome do espécime (mínimo 3 caracteres).”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[nome_curto_2_caracteres]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_nome_curto_2_caracteres__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/29_test_dado_invalido_impede_agendamento_nome_curto_2_caracteres.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t30" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[idade_17_abaixo_do_limite] dado inválido impede agendamento campo idade = 17 → “idade deve estar entre 18 e 120 anos terrestres.” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#30</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.96 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo idade = 17 → “Idade deve estar entre 18 e 120 anos terrestres.”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[idade_17_abaixo_do_limite]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_idade_17_abaixo_do_limite__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/30_test_dado_invalido_impede_agendamento_idade_17_abaixo_do_limite.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t31" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[idade_121_acima_do_limite] dado inválido impede agendamento campo idade = 121 → “idade deve estar entre 18 e 120 anos terrestres.” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#31</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.04 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo idade = 121 → “Idade deve estar entre 18 e 120 anos terrestres.”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[idade_121_acima_do_limite]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_idade_121_acima_do_limite__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/31_test_dado_invalido_impede_agendamento_idade_121_acima_do_limite.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t32" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[idade_nao_numerica] dado inválido impede agendamento campo idade = trinta → “idade deve estar entre 18 e 120 anos terrestres.” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#32</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.80 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo idade = trinta → “Idade deve estar entre 18 e 120 anos terrestres.”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[idade_nao_numerica]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_idade_nao_numerica__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/32_test_dado_invalido_impede_agendamento_idade_nao_numerica.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t33" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[tipo_sanguineo_nao_selecionado] dado inválido impede agendamento campo sangue = não selecionado → “selecione o tipo sanguíneo.” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#33</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.74 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo sangue = não selecionado → “Selecione o tipo sanguíneo.”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[tipo_sanguineo_nao_selecionado]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_tipo_sanguineo_nao_selecionado__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/33_test_dado_invalido_impede_agendamento_tipo_sanguineo_nao_selecionado.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t34" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[data_no_passado] dado inválido impede agendamento campo data = 01/01/2020 → “a data deve ser no futuro. viagem no tempo é outro departamento.” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#34</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.81 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo data = 01/01/2020 → “A data deve ser no futuro. Viagem no tempo é outro departamento.”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[data_no_passado]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_data_no_passado__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/34_test_dado_invalido_impede_agendamento_data_no_passado.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t35" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[data_inexistente_31_02] dado inválido impede agendamento campo data = 31/02/2099 → “data inválida. use o formato dd/mm/aaaa.” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#35</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.96 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo data = 31/02/2099 → “Data inválida. Use o formato DD/MM/AAAA.”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[data_inexistente_31_02]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_data_inexistente_31_02__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/35_test_dado_invalido_impede_agendamento_data_inexistente_31_02.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t36" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[data_formato_errado] dado inválido impede agendamento campo data = 2099-05-10 → “data inválida. use o formato dd/mm/aaaa.” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#36</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.42 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo data = 2099-05-10 → “Data inválida. Use o formato DD/MM/AAAA.”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[data_formato_errado]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_data_formato_errado__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/36_test_dado_invalido_impede_agendamento_data_formato_errado.mp4#t=0.1"></video>
+  </div>
+</article>
+<article class="caso" id="t37" data-mod="test_checkout" data-marks="negativo" data-busca="test_dado_invalido_impede_agendamento[termo_nao_aceito] dado inválido impede agendamento campo termo = desmarcado → “é obrigatório aceitar o termo de sondagem.” preenche o formulário com um único campo inválido (massa em checkout_invalidos.json). erro só nesse campo, continua em #/checkout, nada é gravado no localstorage.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#37</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.95 s</span>
+    </div>
+    <h4>Dado inválido impede agendamento</h4>
+    <p class="cen">Cenário 22 · <span class="tag m-negativo">negativo</span></p>
+    <p class="dado"><span>Dado</span>Campo termo = desmarcado → “É obrigatório aceitar o termo de sondagem.”</p>
+    <p><span class="rot">Ação</span>Preenche o formulário com um único campo inválido (massa em checkout_invalidos.json).</p>
+    <p><span class="rot">Esperado</span>Erro só nesse campo, continua em #/checkout, nada é gravado no localStorage.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_dado_invalido_impede_agendamento[termo_nao_aceito]</code></p>
+    <a class="shot" href="evidencias/screenshots/test_dado_invalido_impede_agendamento_termo_nao_aceito__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/37_test_dado_invalido_impede_agendamento_termo_nao_aceito.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-23"></div>
+<article class="caso" id="t38" data-mod="test_checkout" data-marks="negativo" data-busca="test_formulario_em_branco_acusa_todos_os_campos formulário em branco  confirma sem preencher nada. os 5 campos acusam erro e o carrinho continua com 3 itens.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#38</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.46 s</span>
+    </div>
+    <h4>Formulário em branco</h4>
+    <p class="cen">Cenário 23 · <span class="tag m-negativo">negativo</span></p>
+    
+    <p><span class="rot">Ação</span>Confirma sem preencher nada.</p>
+    <p><span class="rot">Esperado</span>Os 5 campos acusam erro e o carrinho continua com 3 itens.</p>
+    <p class="nodeid"><code>tests/test_checkout.py::test_formulario_em_branco_acusa_todos_os_campos</code></p>
+    <a class="shot" href="evidencias/screenshots/test_formulario_em_branco_acusa_todos_os_campos__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/38_test_formulario_em_branco_acusa_todos_os_campos.mp4#t=0.1"></video>
+  </div>
+</article></section><section class="grupo" data-mod="test_abducoes"><h3>Histórico de abduções <small>tests/test_abducoes.py · 4 testes</small></h3><div class="ancora" id="cen-24"></div>
+<article class="caso" id="t01" data-mod="test_abducoes" data-marks="positivo" data-busca="test_historico_vazio_exibe_mensagem histórico vazio  abre o histórico sem nenhuma abdução. “você ainda não foi abduzido. que vida pacata.”">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#01</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.50 s</span>
+    </div>
+    <h4>Histórico vazio</h4>
+    <p class="cen">Cenário 24 · <span class="tag m-positivo">positivo</span></p>
+    
+    <p><span class="rot">Ação</span>Abre o histórico sem nenhuma abdução.</p>
+    <p><span class="rot">Esperado</span>“Você ainda não foi abduzido. Que vida pacata.”</p>
+    <p class="nodeid"><code>tests/test_abducoes.py::test_historico_vazio_exibe_mensagem</code></p>
+    <a class="shot" href="evidencias/screenshots/test_historico_vazio_exibe_mensagem__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/01_test_historico_vazio_exibe_mensagem.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-25"></div>
+<article class="caso" id="t02" data-mod="test_abducoes" data-marks="positivo" data-busca="test_cancelar_abducao_muda_status_e_persiste_apos_recarregar cancelar abdução  cancela abd-000042 pelo modal e recarrega a página. status cancelada (persiste após refresh), sem botão de cancelar, abd-001947 intacta.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#02</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">4.62 s</span>
+    </div>
+    <h4>Cancelar abdução</h4>
+    <p class="cen">Cenário 25 · <span class="tag m-positivo">positivo</span></p>
+    
+    <p><span class="rot">Ação</span>Cancela ABD-000042 pelo modal e recarrega a página.</p>
+    <p><span class="rot">Esperado</span>Status CANCELADA (persiste após refresh), sem botão de cancelar, ABD-001947 intacta.</p>
+    <p class="nodeid"><code>tests/test_abducoes.py::test_cancelar_abducao_muda_status_e_persiste_apos_recarregar</code></p>
+    <a class="shot" href="evidencias/screenshots/test_cancelar_abducao_muda_status_e_persiste_apos_recarregar__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/02_test_cancelar_abducao_muda_status_e_persiste_apos_recarregar.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-26"></div>
+<article class="caso" id="t03" data-mod="test_abducoes" data-marks="negativo" data-busca="test_desistir_no_modal_mantem_abducao_agendada desistir no modal  abre o modal de cancelamento e desiste. status continua agendada e o botão de cancelar continua disponível.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#03</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.45 s</span>
+    </div>
+    <h4>Desistir no modal</h4>
+    <p class="cen">Cenário 26 · <span class="tag m-negativo">negativo</span></p>
+    
+    <p><span class="rot">Ação</span>Abre o modal de cancelamento e desiste.</p>
+    <p><span class="rot">Esperado</span>Status continua AGENDADA e o botão de cancelar continua disponível.</p>
+    <p class="nodeid"><code>tests/test_abducoes.py::test_desistir_no_modal_mantem_abducao_agendada</code></p>
+    <a class="shot" href="evidencias/screenshots/test_desistir_no_modal_mantem_abducao_agendada__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/03_test_desistir_no_modal_mantem_abducao_agendada.mp4#t=0.1"></video>
+  </div>
+</article><div class="ancora" id="cen-27"></div>
+<article class="caso" id="t04" data-mod="test_abducoes" data-marks="negativo" data-busca="test_nome_com_html_e_exibido_como_texto nome com html não vira marcação (xss)  grava no histórico um nome &lt;img src=x onerror=…&gt;. o nome aparece como texto literal e o script não executa.">
+  <div class="caso-info">
+    <div class="caso-topo">
+      <span class="num">#04</span>
+      <span class="status st-aprovado">aprovado</span>
+      <span class="tempo">3.31 s</span>
+    </div>
+    <h4>Nome com HTML não vira marcação (XSS)</h4>
+    <p class="cen">Cenário 27 · <span class="tag m-negativo">negativo</span></p>
+    
+    <p><span class="rot">Ação</span>Grava no histórico um nome &lt;img src=x onerror=…&gt;.</p>
+    <p><span class="rot">Esperado</span>O nome aparece como texto literal e o script não executa.</p>
+    <p class="nodeid"><code>tests/test_abducoes.py::test_nome_com_html_e_exibido_como_texto</code></p>
+    <a class="shot" href="evidencias/screenshots/test_nome_com_html_e_exibido_como_texto__ok.png" target="_blank">Screenshot final</a>
+  </div>
+  <div class="caso-video">
+    <video controls preload="metadata" playsinline src="evidencias/video/por_teste/04_test_nome_com_html_e_exibido_como_texto.mp4#t=0.1"></video>
+  </div>
+</article></section>
+
+<h2 id="falha"><span class="n">7</span>Investigação de falha</h2>
+<div class="falha">
+<p>Na primeira execução completa o resultado foi <strong>49 aprovados, 1 reprovado</strong>:</p>
+<pre>FAILED tests/test_carrinho.py::test_adicionar_pacotes_pelo_catalogo_atualiza_badge_e_carrinho
+ElementClickInterceptedException: element click intercepted: Element &lt;button ... data-testid="btn-abduzir" data-id="4"&gt;
+is not clickable at point (1071, 722). Other element would receive the click: &lt;div id="toast" class="toast" ...&gt;</pre>
+<dl class="passos">
+  <dt>Sintoma</dt><dd>O segundo clique em “Abduzir” foi recebido por outro elemento.</dd>
+  <dt>Evidência</dt><dd>O screenshot abaixo mostra o aviso verde do primeiro item sobre o botão do card “Vaca VIP”.</dd>
+  <dt>Causa</dt><dd>Defeito do <strong>site</strong>, não do teste: o aviso fica 2,5 s sobre o canto inferior direito e bloqueia cliques nos cards atrás dele. Um usuário real rápido teria o mesmo problema.</dd>
+  <dt>Correção</dt><dd><code>pointer-events: none</code> no <code>.toast</code> (<code>site/style.css</code>). Contornar no teste (esperar o aviso sumir ou clicar via JavaScript) esconderia o defeito.</dd>
+  <dt>Reteste</dt><dd>50 aprovados, 0 reprovados (<a href="#t05">ver teste #05</a>).</dd>
+</dl>
+<figure>
+  <img src="evidencias/screenshots/test_adicionar_pacotes_pelo_catalogo_atualiza_badge_e_carrinho__FALHOU.png" alt="Aviso verde sobrepondo o botão Abduzir do card Vaca VIP" loading="lazy">
+  <figcaption>Screenshot capturado automaticamente no momento da falha.</figcaption>
+</figure>
+</div>
+
+<h2 id="suite"><span class="n">8</span>Vídeo da suíte completa</h2>
+<p>Os 50 testes em sequência, num único arquivo.</p>
+<video class="video-suite" controls preload="metadata" src="evidencias/video/suite_completa.mp4#t=0.1"></video>
+
+<h2 id="executar"><span class="n">9</span>Como executar</h2>
+<p>Requisitos: Python 3.10+ e Google Chrome.</p>
+<pre>python -m venv .venv
+.venv\Scripts\activate            # Linux/macOS: source .venv/bin/activate
+pip install -r requirements.txt
+pytest                            # suíte completa, headless
+pytest -m smoke                   # só os fluxos críticos
+pytest -m negativo                # só testes negativos
+$env:HEADED=1; pytest -m smoke    # navegador visível (PowerShell)
+$env:VIDEO=1; pytest              # grava os vídeos em evidencias/video/</pre>
+
+<footer>Abra este arquivo a partir da raiz do projeto: vídeos e screenshots são lidos das pastas <code>evidencias/</code> ao lado.</footer>
+</main>
+</div>
+<script>
+(function () {
+  var busca = document.getElementById('f-busca'), mod = document.getElementById('f-mod'),
+      mark = document.getElementById('f-mark'), cont = document.getElementById('f-cont');
+  var casos = [].slice.call(document.querySelectorAll('.caso')), grupos = [].slice.call(document.querySelectorAll('.grupo'));
+  function aplicar() {
+    var q = busca.value.trim().toLowerCase(), m = mod.value, k = mark.value, n = 0;
+    casos.forEach(function (c) {
+      var ok = (!q || c.dataset.busca.indexOf(q) > -1) && (!m || c.dataset.mod === m) &&
+               (!k || (' ' + c.dataset.marks + ' ').indexOf(' ' + k + ' ') > -1);
+      c.classList.toggle('oculto', !ok); if (ok) n++;
+    });
+    grupos.forEach(function (g) { g.classList.toggle('oculto', !g.querySelector('.caso:not(.oculto)')); });
+    cont.textContent = n + ' de ' + casos.length;
+  }
+  [busca, mod, mark].forEach(function (el) { el.addEventListener('input', aplicar); });
+  // só um vídeo tocando por vez
+  document.addEventListener('play', function (ev) {
+    document.querySelectorAll('video').forEach(function (v) { if (v !== ev.target) v.pause(); });
+  }, true);
+})();
+</script>
+</body>
+</html>
